@@ -1,3 +1,5 @@
+@import "../../../styles/defaults";
+
 :host {
   position: absolute;
   bottom: 0px;
@@ -19,4 +21,17 @@
   left: 7%;
   right: 2%;
   top: 30%;
+}
+
+.minimize {
+  cursor: pointer;
+  color:aquamarine;
+  opacity: 50%;
+  position: absolute;
+  right: 1.5%;
+  top: 6%;
+}
+
+.minimize:hover {
+  opacity: 100%;
 }

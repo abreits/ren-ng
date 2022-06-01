@@ -1,4 +1,6 @@
 @use "sass:string";
+@import "~@fontsource/roboto";
+@import "~@fontsource/material-icons";
 
 // you can change these defaults (even if you don't know much about scss)
 $image-pane-aspect-ratio: "16/9";
@@ -11,12 +13,10 @@ $speaker-name-scale: 1.2;
 $aspect: string.unquote($image-pane-aspect-ratio);
 
 .text {
-  font-family: Arial, Helvetica, sans-serif;
   color: white;
 }
 
 .speaker {
-  font-family: Arial, Helvetica, sans-serif;
   color: cyan;
 }
 
@@ -28,11 +28,11 @@ $aspect: string.unquote($image-pane-aspect-ratio);
     aspect-ratio: $aspect;
   }
 
-  .text {
+  .text-size {
     font-size: calc(2vw * $text-scale);
   }
 
-  .speaker {
+  .speaker-size {
     font-size: calc(2vw * $speaker-name-scale);
   }
 }
@@ -45,11 +45,11 @@ $aspect: string.unquote($image-pane-aspect-ratio);
     aspect-ratio: $aspect;
   }
 
-  .text {
+  .text-size {
     font-size: calc(2vh * $text-scale * $aspect);
   }
 
-  .speaker {
+  .speaker-size {
     font-size: calc(2vh * $speaker-name-scale * $aspect);
   }
 }
