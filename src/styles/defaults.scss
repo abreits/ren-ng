@@ -1,0 +1,41 @@
+@use "sass:string";
+
+// you can change these defaults (even if you don't know much about scss)
+$image-pane-aspect-ratio: "16/9";
+$image-pane-border-color: black;
+$image-pane-background-color: darkred;
+$text-scale: 1;
+
+// only change the code below here if you know what you are doing :)
+$aspect: string.unquote($image-pane-aspect-ratio);
+
+.text {
+  font-family: Arial, Helvetica, sans-serif;
+  color: white;
+}
+
+@media(max-aspect-ratio: $aspect) {
+  .inner {
+    position: absolute;
+    background-color: $image-pane-background-color;
+    width: 100%;
+    aspect-ratio: $aspect;
+  }
+
+  .text {
+    font-size: calc(2vw * $text-scale);
+  }
+}
+
+@media(min-aspect-ratio: $aspect) {
+  .inner {
+    position: absolute;
+    background-color: $image-pane-background-color;
+    height: 100%;
+    aspect-ratio: $aspect;
+  }
+
+  .text {
+    font-size: calc(2vh * $text-scale * $aspect);
+  }
+}

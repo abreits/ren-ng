@@ -1,0 +1,13 @@
+@import "../../../styles/defaults";
+
+:host {
+  background-color: $image-pane-border-color;
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  bottom: 0px;
+  right: 0px;
+  z-index: 0;
+  display: grid;
+  justify-content: center;
+}
