@@ -8,8 +8,15 @@
   width: 100%;
 }
 
-div {
+.speaker {
   position: absolute;
-  left: 10%;
-  top: 25%;
+  left: 1.5%;
+  top: 6%;  
+}
+
+.text {
+  position: absolute;
+  left: 7%;
+  right: 2%;
+  top: 30%;
 }

@@ -5,6 +5,7 @@ $image-pane-aspect-ratio: "16/9";
 $image-pane-border-color: black;
 $image-pane-background-color: darkred;
 $text-scale: 1;
+$speaker-name-scale: 1.2;
 
 // only change the code below here if you know what you are doing :)
 $aspect: string.unquote($image-pane-aspect-ratio);
@@ -12,6 +13,11 @@ $aspect: string.unquote($image-pane-aspect-ratio);
 .text {
   font-family: Arial, Helvetica, sans-serif;
   color: white;
+}
+
+.speaker {
+  font-family: Arial, Helvetica, sans-serif;
+  color: cyan;
 }
 
 @media(max-aspect-ratio: $aspect) {
@@ -25,6 +31,10 @@ $aspect: string.unquote($image-pane-aspect-ratio);
   .text {
     font-size: calc(2vw * $text-scale);
   }
+
+  .speaker {
+    font-size: calc(2vw * $speaker-name-scale);
+  }
 }
 
 @media(min-aspect-ratio: $aspect) {
@@ -37,5 +47,9 @@ $aspect: string.unquote($image-pane-aspect-ratio);
 
   .text {
     font-size: calc(2vh * $text-scale * $aspect);
+  }
+
+  .speaker {
+    font-size: calc(2vh * $speaker-name-scale * $aspect);
   }
 }
