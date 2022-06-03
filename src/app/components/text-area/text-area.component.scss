@@ -1,6 +1,6 @@
 @import "../../../styles/defaults";
 
-:host {
+.text-area {
   position: absolute;
   bottom: 0px;
   left: 0px;
@@ -23,15 +23,20 @@
   top: 30%;
 }
 
-.minimize {
+.toggle {
+  position: absolute;
+  top: 6%;
+  left: 97%;
+  // right: 1.5%;
   cursor: pointer;
   color:aquamarine;
   opacity: 50%;
-  position: absolute;
-  right: 1.5%;
-  top: 6%;
 }
 
-.minimize:hover {
+.toggle:hover {
   opacity: 100%;
+}
+
+.bottom {
+  top: 95%;
 }

@@ -1,7 +1,12 @@
-<div class="speaker speaker-size">Narrator</div>
-<div class="text text-size">text-area works! this is a multiline text and should be rendered as such
-  this is a extra text to make it long enough for multiple lines
+<div [@displayHide]="hide ? 'hide' : 'display'" class="text-area">
+  <div class="speaker speaker-size">Narrator</div>
+  <div class="text text-size">text-area works! this is a multiline text and should be rendered as such
+    this is a extra text to make it long enough for multiple lines
+  </div>
+  <div *ngIf="!hide" class="toggle" (click)="hide = true">
+    <mat-icon class="speaker-size">expand_more</mat-icon>
+  </div>
 </div>
-<div class="minimize" (click)="toggleFullScreen()">
-  <mat-icon class="speaker-size">expand_more</mat-icon>
+<div *ngIf="hide" class="toggle bottom" (click)="hide = false">
+  <mat-icon class="speaker-size">expand_less</mat-icon>
 </div>
