@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 
+import { StoryService } from 'src/app/services/story/story.service';
+
 @Component({
   selector: 'app-background',
   templateUrl: './background.component.html',
@@ -7,7 +9,9 @@ import { Component, OnInit } from '@angular/core';
 })
 export class BackgroundComponent implements OnInit {
 
-  constructor() { }
+  constructor(
+    story: StoryService
+  ) { }
 
   ngOnInit(): void {
   }

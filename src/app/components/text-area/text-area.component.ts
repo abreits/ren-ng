@@ -1,6 +1,8 @@
 import { trigger, state, style, transition, animate } from '@angular/animations';
 import { Component, OnInit } from '@angular/core';
 
+import { StoryService } from 'src/app/services/story/story.service';
+
 @Component({
   selector: 'app-text-area',
   animations: [
@@ -29,7 +31,9 @@ import { Component, OnInit } from '@angular/core';
 export class TextAreaComponent implements OnInit {
   hide = false;
 
-  constructor() { }
+  constructor(
+    story: StoryService
+  ) { }
 
   ngOnInit(): void {
   }
