@@ -32,6 +32,7 @@ export class ShortcutsService implements OnDestroy {
     this.addMouseEvent('click', () => console.log('click!'));
     this.addMouseEvent('wheel', (event: UIEvent) => console.log('wheel', event));
     this.addKeyEvent('Space', this.story.nextAction);
+    this.addKeyEvent('Backspace', this.story.previousAction );
     this.addKeyEvent('Escape', (event: UIEvent) => console.log('escape', event));
   }
 

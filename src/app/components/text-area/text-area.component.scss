@@ -6,7 +6,7 @@
   left: 0px;
   right: 0px;
   top: 75%;
-  background-color: #00008040;
+  // background-color: #00008040;
   width: 100%;
 }
 
@@ -14,6 +14,7 @@
   position: absolute;
   left: 1.5%;
   top: 6%;  
+  text-shadow: black 0px 0px 3px;
 }
 
 .text {
@@ -21,6 +22,7 @@
   left: 7%;
   right: 2%;
   top: 30%;
+  text-shadow: black 0px 0px 3px;
 }
 
 .toggle {
@@ -31,6 +33,7 @@
   cursor: pointer;
   color:aquamarine;
   opacity: 50%;
+  text-shadow: black 0px 0px 2px;
 }
 
 .toggle:hover {

@@ -1,3 +1,4 @@
-<div class="inner">
+<div class="inner" [ngStyle]="setBackground((story.state$ | async)?.background)">
+  {{(story.state$ | async)?.background}}
   <ng-content></ng-content>
 </div>
