@@ -32,7 +32,7 @@ export class TextAreaComponent implements OnInit {
   hide = false;
 
   constructor(
-    story: StoryService
+    public story: StoryService
   ) { }
 
   ngOnInit(): void {

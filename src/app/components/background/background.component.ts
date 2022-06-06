@@ -27,4 +27,8 @@ export class BackgroundComponent implements OnInit {
     }
   }
 
+  displayState(source: any): string {
+    return JSON.stringify(source, null, 2);
+  }
+
 }
