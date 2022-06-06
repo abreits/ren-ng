@@ -37,7 +37,12 @@ export class StoryService {
     StoryService.instance = this;
 
     // debugging
-    this.state$.subscribe(state => console.log('received state: ', JSON.stringify(state, null, 2)));
+    // this.state$.subscribe(state => {
+    //   console.log('received state: ', JSON.stringify(state, null, 2))
+    //   console.log('this.futureStates: ', JSON.stringify(this.futureStates, null, 2))
+    //   console.log('this.currentState: ', JSON.stringify(this.currentState, null, 2))
+    //   console.log('this.pastStates: ', JSON.stringify(this.pastStates, null, 2))
+    // });
   }
 
   /**
@@ -46,8 +51,6 @@ export class StoryService {
    */
   private actionSubscription: Subscription | undefined;
   nextAction = (): void => {
-    console.log('nextAction', this.futureStates);
-    console.log('this.actionBusy$ ', this.actionSubscription !== undefined)
     if (this.actionSubscription) {
       this.skipToInputAction();
     } else {
@@ -57,30 +60,26 @@ export class StoryService {
 
 
   private skipToInputAction() {
-    console.log('skipToInputAction')
     // halt currently actionBusy$ subscription from executing
     this.actionSubscription!.unsubscribe();
     this.actionSubscription = undefined;
     // skip to the first action without continue$
-    let nextState = this.futureStates.shift();
-    while (nextState?.continue$) {
-      this.pastStates.push(this.currentState);
-      this.currentState = nextState;
+    let nextState: StoryState | undefined;
+    while (this.futureStates.length > 0) {
       nextState = this.futureStates.shift();
+      if (!nextState?.continue$) break;
+      this.pastStates.push(this.currentState);
+      this.currentState = nextState!;
     }
     this.setState(nextState);
   }
 
   private performNextAction(): void {
     const nextState = this.futureStates.shift();
-    console.log('performNextAction');
     this.setState(nextState);
   };
 
   private setState(state: StoryState | undefined) {
-    console.log('setState')
-    console.log(JSON.stringify(state, null, 2))
-    console.log('this.actionBusy$ ', this.actionSubscription !== undefined)
     if (state) {
       this.pastStates.push(this.currentState);
       this.currentState = state;
@@ -88,17 +87,10 @@ export class StoryService {
       if (state.continue$) {
         // automatically switch to next state after this one has completed
         if (this.actionSubscription) throw new Error('nextAction$ should be undefined!');
-        console.log('starting subscription after executing, set actionBusy$')
-        console.log(JSON.stringify(state, null, 2))
         this.actionSubscription = state.continue$.pipe(first(), delay(0)).subscribe(() => {
-          console.log('subscription executed')
-          console.log('this.actionBusy$ cleared!')
           this.actionSubscription = undefined;
           this.nextAction();
         });
-      } else {
-        console.log('this is a wait for input state')
-        console.log('this.actionBusy$ ', this.actionSubscription !== undefined)
       }
     }
   }
@@ -111,16 +103,20 @@ export class StoryService {
   };
 
   /**
-   * Roll back to the previous story action if it is available
+   * Roll back to the previous story input action if it is available
    */
   previousAction = (): void => {
-    console.log('previousAction');
-    const lastState = this.pastStates.pop();
-    if (lastState) {
+    // halt possible actionBusy$ subscription from executing
+    this.actionSubscription?.unsubscribe();
+    this.actionSubscription = undefined;
+
+    // get previous input action
+    while (this.pastStates.length > 0) {
       this.futureStates.unshift(this.currentState);
-      this.currentState = lastState;
-      this.stateSubject$.next(lastState);
+      this.currentState = this.pastStates.pop()!;
+      if (!this.currentState?.continue$) break;
     }
+    this.stateSubject$.next(this.currentState);
   }
 
   private lastState(): StoryState | undefined {
@@ -146,7 +142,7 @@ export const testStory = () => {
   text('text-area works! this is a multiline text and should be rendered as such this is a extra text to make it long enough for multiple lines');
   text('second line with the same background');
   text('and now with a narrator', 'Narrator');
-  background('blue', of(true).pipe(delay(5000))); 
+  background('blue', of(true).pipe(delay(5000)));
   background('yellow', of(true).pipe(delay(5000)));
   background('white');
   text('This is a text with a different background', 'Test');

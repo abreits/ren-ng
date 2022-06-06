@@ -1,4 +1,3 @@
 <div class="inner" [ngStyle]="setBackground((story.state$ | async)?.background)">
-  <div style="color:blue">{{displayState(story.state$ | async)}}</div>
   <ng-content></ng-content>
 </div>
