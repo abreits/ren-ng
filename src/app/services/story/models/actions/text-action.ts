@@ -1,5 +1,11 @@
-import { of } from "rxjs";
+import { Observable, of } from "rxjs";
 import { actionCenter, ActionState, StoryAction } from "./action-definitions";
+
+/**
+ * Display a story text
+ * @param text 
+ * @param actor 
+ */
 
 export function text(text: string, actor?: string) {
   actionCenter.addAction(new TextAction(text, actor));
@@ -16,7 +22,7 @@ export class TextAction extends StoryAction {
   }
 
   
-  updateState(state: ActionState): void {
+  updateState(state: ActionState): Observable<ActionState> {
     state.story.text = this.text;
     state.story.actor = this.actor;
 
@@ -32,5 +38,7 @@ export class TextAction extends StoryAction {
     //     complete$: complete$
     //   };
     // }
+
+    return of(state);
   }
 }

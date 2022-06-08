@@ -1,4 +1,4 @@
-import { concat, concatMap, concatMapTo, defaultIfEmpty, Observable, of, Subject } from "rxjs";
+import { Observable, of, Subject } from "rxjs";
 import { actionCenter, ActionState, StoryAction } from "./action-definitions";
 
 export function background(background: Partial<BackgroundActionParams>) {
@@ -25,7 +25,7 @@ class BackgroundAction extends StoryAction {
     super();
   }
 
-  updateState(state: ActionState): void {
+  updateState(state: ActionState): Observable<ActionState> {
     if (!this.params.keepText) {
       state.anim.hideText = true;
     }
@@ -39,12 +39,14 @@ class BackgroundAction extends StoryAction {
     if (this.params.animation) {
       const complete$ = new Subject();
       state.anim = {
-        background: { 
+        background: {
           animation: this.params.animation,
           duration: this.params.duration
         },
         complete$: complete$
       };
     }
+
+    return of(state);
   }
 }

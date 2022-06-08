@@ -20,10 +20,10 @@ export abstract class StoryAction {
   protected running$: Observable<number> | undefined;
 
   // update the state
-  abstract updateState(state: ActionState): void;
+  abstract updateState(state: ActionState): Observable<ActionState>;
 
   // returns next story action to be executed
-  execute(state: ActionState): Observable<number> {
+  waitForCompletion(state: ActionState): Observable<number> {
     if (state.anim.complete$) {
       // returns the next id after the complete$ Subject has been closed
       return state.anim.complete$.pipe(defaultIfEmpty(true), concatMap(() => of(this.id + 1)));
@@ -33,7 +33,7 @@ export abstract class StoryAction {
     }
   }
 
-  finish(state: ActionState): void {
+  speedupCompletion(state: ActionState): void {
     state.anim?.complete$?.complete();
   }
 
@@ -80,7 +80,7 @@ export class ActionCenter {
       action.updateState(this.currentState);
       this.state$.next(this.currentState);
       // close after the first element and wait for next tick before proceeding (otherwise execution order can mess up)
-      action.execute(this.currentState).pipe(first(), delay(0)).subscribe(nextId => {
+      action.waitForCompletion(this.currentState).pipe(first(), delay(0)).subscribe(nextId => {
         this.nextActionId = nextId;
       });
     }
