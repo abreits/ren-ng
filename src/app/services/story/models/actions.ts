@@ -1,7 +1,7 @@
 // collect all actions here
 
-export { background } from "./actions/background-action";
-export { text } from "./actions/text-action";
+export { background } from "./action/background-action";
+export { text } from "./action/text-action";
 
 
 

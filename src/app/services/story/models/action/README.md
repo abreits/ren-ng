@@ -60,9 +60,9 @@ quit game:
 - B: endgame page animation is running
    nextAction (space bar or mouse click) should go to situation A
 
-## abstract action superclass
+## action baseclass
 
-The abstract action superclass must be able to facilitate all basic functionality of the actions defined in the action categories. 
+The  action base class must be able to facilitate all basic functionality of the actions defined in the action categories. 
 
 This means the following activities must be iplemented:
 - A: The state modification is complete
