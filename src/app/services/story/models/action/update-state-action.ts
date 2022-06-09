@@ -1,4 +1,4 @@
-import { ActionUpdate, ResultUpdate, StoryAction } from "./abstract-story-action";
+import { ActionStart, ActionResult, StoryAction } from "./abstract-story-action";
 
 /**
  * Modify the story state
@@ -6,25 +6,29 @@ import { ActionUpdate, ResultUpdate, StoryAction } from "./abstract-story-action
  * 
  * @example processState(state => state.nextAction++) // just skip to the next action
  */
-export function updateState(update: (state: ActionUpdate) => void): ActionUpdate | void {
+export function updateState(updateFunction: (update: ActionStart) => void): ActionStart | void {
   // actionCenter.addAction(new UpdateStateAction(update));  
-  new UpdateStateAction(update)
+  new UpdateStateAction(updateFunction)
 }
 
 updateState(update => {
-
+  return update;
 })
 
 class UpdateStateAction extends StoryAction {
+  override get autoContinue(): boolean {
+    return true;
+  }
+
   constructor(
-    private update: (update: ActionUpdate) => ResultUpdate | void
+    private updateFunction: (update: ActionStart) => ActionResult | void
   ) {
     super();
   }
 
   override id = -1;
 
-  override updateState(update: ActionUpdate): ResultUpdate | void {
-      return this.update(update);
+  override updateState(update: ActionStart): ActionResult | void {
+      return this.updateFunction(update);
   }
 }
