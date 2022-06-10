@@ -99,7 +99,7 @@ export class ActionStart implements ActionResult {
     public story: StoryState,
     public global: GlobalState,
     private results$: Subject<ActionResult>,
-    private speedup$: Observable<boolean>
+    private speedup$: Subject<boolean>
   ) { }
 
   /**
@@ -115,6 +115,7 @@ export class ActionStart implements ActionResult {
   complete() {
     this.results$.next(this);
     this.results$.complete();
+    this.speedup$.complete();
   }
 
   /**
@@ -126,15 +127,13 @@ export class ActionStart implements ActionResult {
    *   handling of this is mandatory!
    */
   speedup(finishAction: (kill: boolean) => void) {
-    const subscription = this.speedup$.subscribe((kill: boolean) => {
+    this.speedup$.subscribe((kill: boolean) => {
       if(kill) {
         // no need to receive result any more, result will be overwritten by redo or undo action
         this.results$.complete();
+        this.speedup$.complete();
       }
       finishAction(kill);
-      // TODO: only unsubscribe here when kill is true, otherwise unsubscribe/close when action complete
-      // problem: can only perform one cleanup, not kill after no kill
-      subscription.unsubscribe();
     });
   }
 }
