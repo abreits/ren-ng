@@ -20,7 +20,7 @@ export class BackgroundComponent implements OnInit {
   setBackground(color?: string): { [klass: string]: any; } | null {
     if (color) {
       return {
-        "background-color": color
+        'background-color': color
       }
     } else {
       return null;

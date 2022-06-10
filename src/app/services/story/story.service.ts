@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { BehaviorSubject, delay, first, Observable, of, Subject, Subscription } from 'rxjs';
 
 
@@ -11,8 +11,8 @@ export interface StoryState {
 @Injectable({
   providedIn: 'root'
 })
-export class StoryService {
-  private static instance?: StoryService;
+export class StoryService implements OnDestroy {
+  private static instance: StoryService | undefined;
   static appendState(storyState: StoryState): void {
     if (StoryService.instance) {
       const lastState = StoryService.instance.lastState();
@@ -43,6 +43,10 @@ export class StoryService {
     //   console.log('this.currentState: ', JSON.stringify(this.currentState, null, 2))
     //   console.log('this.pastStates: ', JSON.stringify(this.pastStates, null, 2))
     // });
+  }
+
+  ngOnDestroy(): void {
+    StoryService.instance = undefined;
   }
 
   /**
