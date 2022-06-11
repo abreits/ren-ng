@@ -17,14 +17,13 @@ export class ActionCenterService {
   private storyState!: Readonly<StoryState>;
   private globalState!: GlobalState;
 
-  // 
   private currentAction?: StoryAction;
   private actionSubscription?: Subscription;
 
   // walking through the action states
   private stateSubject$ = new Subject<ActionResult>();
   public state$ = this.stateSubject$.asObservable();
-
+  
   // undo history
   private UndoAction: UndoState[] = [];
   private currentUndoAction?: UndoState;
@@ -39,7 +38,7 @@ export class ActionCenterService {
     if (!this.actionSubscription || this.actionSubscription.closed) {
       this.executeAction(this.nextActionId++);
     } else {
-      this.currentAction?.speedup(false);
+      this.currentAction?.speedup();
     }
   }
 
@@ -93,7 +92,7 @@ export class ActionCenterService {
 
   undoAction() {
     if (this.currentUndoAction) {
-      this.killCurrentAction();
+      this.currentAction?.abort();
       this.storyState = applyPatches(this.storyState, this.currentUndoAction.currentToPreviousStatePatches);
       this.nextActionId = this.currentUndoAction.currentActionId;
       this.currentUndoAction = this.UndoAction.pop();
@@ -109,7 +108,7 @@ export class ActionCenterService {
         if (seenId) {
           const redoAction = this.seenActions.get(seenId);
           if (redoAction) {
-            this.killCurrentAction();
+            this.currentAction?.abort();
             this.nextActionId = redoAction.nextActionId;
             this.storyState = applyPatches(this.storyState, redoAction.previousToCurrentStatePatches);
             this.nextAction();
@@ -117,9 +116,5 @@ export class ActionCenterService {
         }
       });
     }
-  }
-
-  private killCurrentAction() {
-    this.currentAction?.speedup(true);
   }
 }

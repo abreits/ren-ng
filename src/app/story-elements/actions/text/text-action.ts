@@ -34,16 +34,29 @@ class TextAction extends StoryAction {
       return update;
     }
 
-    // update to the full text after speedup
-    update.speedup(() => {
+    update.onSpeedup = () => {
+      // stop sending updates and update to the full text
       subscription.unsubscribe();
       update.story.action.text!.text = this.params.text;
+      update.publish();
       update.complete();
-    });
+    };
+
+    update.onAbort = () => {
+      // only need to cleanup the subscription
+      subscription.unsubscribe();
+    };
+
 
     // display one letter at a time
-    const subscription = from(this.params.text).pipe(delay(update.global.textSpeed)).subscribe(nextLetter => {
-      update.story.action.text!.text += nextLetter;
+    const subscription = from(this.params.text).pipe(delay(update.global.textSpeed)).subscribe({
+      next: nextLetter => {
+        update.story.action.text!.text += nextLetter;
+        update.publish();
+      },
+      complete: () => {
+        update.complete();
+      }
     })
   }
 }

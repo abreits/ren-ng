@@ -47,7 +47,7 @@ class BackgroundAction extends StoryAction {
       update.feedback$.subscribe({ complete: completeAnimation });
 
       // define reaction to speedup request from the ActionCenter
-      update.speedup(completeAnimation);
+      update.onSpeedup = completeAnimation;
 
       // start animation
       update.publish();

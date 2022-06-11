@@ -22,7 +22,7 @@ export abstract class StoryAction {
    */
   protected abstract updateState(update: ActionStart): ActionResult | void;
 
-  private speedup$?: Subject<boolean>;
+  private interrupt$?: Subject<boolean>;
 
   /**
    * Whether the next action should automatically start after this action has completed.
@@ -50,26 +50,57 @@ export abstract class StoryAction {
    */
   execute(storyState: StoryState, globalState: GlobalState): Observable<ActionResult> {
     const results$ = new Subject<ActionResult>();
-    this.speedup$ = new Subject();
-    const actionStart = new ActionStart(storyState, globalState, results$, this.speedup$)
+    this.interrupt$ = new Subject();
+
+    const actionStart = new ActionStart(storyState, globalState, results$, this.interrupt$);
+
+    // setup handling of speedup and abort interrupts
+    this.interrupt$.subscribe((abort: boolean) => {
+      if (abort) {
+        // no need to receive result any more, result will be overwritten by redo or undo action
+        results$.complete();
+        this.interrupt$!.complete();
+        if (actionStart.onAbort) {
+          actionStart.onAbort();
+        }
+      } else {
+        if (actionStart.onSpeedup) {
+          actionStart.onSpeedup();
+        }
+      }
+    });
     let result = this.updateState(actionStart);
     if (result) {
       // should be a synchronous, close the Subjects and send the result
       results$.complete();
-      this.speedup$.complete;
+      this.interrupt$.complete;
       return of(result);
     } else {
       // pass result$ through and close speedup$ when it completes
-      return results$.pipe(finalize(() => this.speedup$?.complete()));
+      return results$.pipe(finalize(() => this.interrupt$?.complete()));
     }
   }
 
-  speedup(kill: boolean) {
-    this.speedup$?.next(kill);
+  /**
+   * Request to speed up the execution of this action.
+   * 
+   * e.g. to skip the rest of an animation
+   */
+  speedup() {
+    this.interrupt$?.next(false);
   }
 
   /**
-   * create a seen id for this start storyState. If the action should not be marked as seen, return undefined
+   * Order to abort the execution of this action
+   * 
+   * e.g. when an undo or redo action is performed during execution of this action
+   */
+  abort() {
+    this.interrupt$?.next(false);
+  }
+
+  /**
+   * Create a seen id for this start storyState. If the action should not be marked as seen, return undefined
    */
   seenId(storyState: StoryState): Observable<string | undefined> {
     const key = {
@@ -99,7 +130,7 @@ export class ActionStart implements ActionResult {
     public story: StoryState,
     public global: GlobalState,
     private results$: Subject<ActionResult>,
-    private speedup$: Subject<boolean>
+    private interrupt$: Subject<boolean>
   ) { }
 
   /**
@@ -115,25 +146,20 @@ export class ActionStart implements ActionResult {
   complete() {
     this.results$.next(this);
     this.results$.complete();
-    this.speedup$.complete();
+    this.interrupt$.complete();
   }
 
   /**
-   * Specify reaction to the speedup request, only needed for async actions (e.g. to skip a long animation)
-   * - if `kill` is false, just try to finish the current action as fast as possible,
-   *   it can be ignored, but for the best user experience please don't.
-   * - if `kill` is true, cleanup all internal stuff (e.g. running subscriptions) and close the current action, 
-   *   no need to publish() or complete() a valid update because the result will be ignored,
-   *   handling of this is mandatory!
+   * Function to be called when a speedup of the current action is requested.
+   *
+   * e.g. skip to end of animation
    */
-  speedup(finishAction: (kill: boolean) => void) {
-    this.speedup$.subscribe((kill: boolean) => {
-      if(kill) {
-        // no need to receive result any more, result will be overwritten by redo or undo action
-        this.results$.complete();
-        this.speedup$.complete();
-      }
-      finishAction(kill);
-    });
-  }
+  onSpeedup?: () => void;
+
+  /**
+   * Cleanup function to be called when the current action is aborted.
+   *
+   * e.g. cleanup of observables created for the action
+   */
+  onAbort?: () => void;
 }
