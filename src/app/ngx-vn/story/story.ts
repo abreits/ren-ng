@@ -1,4 +1,4 @@
-import { StoryAction } from '../actions/abstract-story-action/abstract-story-action';
+import { StoryAction } from '@ngx-vn/actions/abstract-story-action';
 
 /**
  * class containing the whole story

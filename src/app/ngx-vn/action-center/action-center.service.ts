@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
-import { applyPatches, createDraft, enablePatches, finishDraft } from "immer"
-import { Subject, Subscription } from "rxjs";
 
-import { GlobalState, UndoState, RedoState, StoryState } from "../../story-elements/states/states";
-import { ActionResult, StoryAction } from "../../story-elements/actions/abstract-story-action/abstract-story-action";
-import { story } from 'src/app/story-elements/story/story';
+import { applyPatches, createDraft, enablePatches, finishDraft } from 'immer';
+import { Subject, Subscription } from 'rxjs';
+
+import { ActionResult, StoryAction } from '@ngx-vn/actions/abstract-story-action';
+import { GlobalState, UndoState, RedoState, StoryState } from '@ngx-vn/states/states';
+import { story } from '@ngx-vn/story/story';
 
 enablePatches();
 
@@ -69,7 +70,7 @@ export class ActionCenterService {
                   this.seenActions.set(seenId, {
                     nextActionId: this.nextActionId,
                     previousToCurrentStatePatches: patches
-                  })
+                  });
                 }
 
                 // if currently completed actionHistory exists: move to history and replace with current
@@ -79,7 +80,7 @@ export class ActionCenterService {
                 this.currentUndoAction = {
                   currentActionId: action.id,
                   currentToPreviousStatePatches: inversePatches
-                }
+                };
               });
             });
           }

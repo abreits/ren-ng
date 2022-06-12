@@ -1,9 +1,10 @@
-import { finalize, from, Observable, of, Subject } from 'rxjs';
-import { GlobalState, StoryState } from '../../states/states';
+import { finalize, from, Observable, Subject } from 'rxjs';
 
-export interface ActionResult {
+import { GlobalState, StoryState } from '@ngx-vn/states/states';
+
+export interface ActionResult<Stats = unknown> {
   nextActionId?: number;
-  story: StoryState;
+  story: StoryState<Stats>;
   global: GlobalState;
 }
 
@@ -12,16 +13,16 @@ export interface ActionResult {
  * This is the minimal implementation for a base class
  */
 export abstract class StoryAction {
-  id!: number; // will always have a value when added to the ActionCenter
-
   /**
-   * This method performs the action
-   * @param state 
-   * @returns the `ResultUpdate` when not async, otherwise intermittent results are returned using
-   * `update.publish()` and the final result is returned using `update.complete()`
+   * This method updates the story state as defined in the ActionSource.
+   * 
+   * - Intermittent results are published by calling `update.publish()`, 
+   *   frontend components can receive these updates by subscribing to the actionCenterService.state$,
+   * - End of publication is signalled by calling `update.complete()`
    */
-  protected abstract updateState(update: ActionStart): ActionResult | void;
+  protected abstract updateState(update: ActionSource): void;
 
+  id!: number; // will always have a value when added to the ActionCenter?
   private interrupt$?: Subject<boolean>;
 
   /**
@@ -52,14 +53,14 @@ export abstract class StoryAction {
     const results$ = new Subject<ActionResult>();
     this.interrupt$ = new Subject();
 
-    const actionStart = new ActionStart(storyState, globalState, results$, this.interrupt$);
+    const actionStart = new ActionSource(storyState, globalState, results$, this.interrupt$);
 
     // setup handling of speedup and abort interrupts
     this.interrupt$.subscribe((abort: boolean) => {
       if (abort) {
         // no need to receive result any more, result will be overwritten by redo or undo action
         results$.complete();
-        this.interrupt$!.complete();
+        this.interrupt$?.complete();
         if (actionStart.onAbort) {
           actionStart.onAbort();
         }
@@ -69,16 +70,9 @@ export abstract class StoryAction {
         }
       }
     });
-    let result = this.updateState(actionStart);
-    if (result) {
-      // should be a synchronous, close the Subjects and send the result
-      results$.complete();
-      this.interrupt$.complete;
-      return of(result);
-    } else {
-      // pass result$ through and close speedup$ when it completes
-      return results$.pipe(finalize(() => this.interrupt$?.complete()));
-    }
+    this.updateState(actionStart);
+    // pass result$ through and close speedup$ when it completes
+    return results$.pipe(finalize(() => this.interrupt$?.complete()));
   }
 
   /**
@@ -106,11 +100,11 @@ export abstract class StoryAction {
     const key = {
       id: this.id,
       state: storyState.action
-    }
+    };
     return from(this.hash(key));
   }
 
-  protected async hash(src: any) {
+  protected async hash(src: unknown) {
     const buffer = new TextEncoder().encode(JSON.stringify(src));
     const arrayBuffer = await crypto.subtle.digest('SHA-256', buffer);
     return btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
@@ -121,13 +115,13 @@ export abstract class StoryAction {
  * making action state updates easy async with the
  * `publish`, `complete` and `speedup` utility methods
  */
-export class ActionStart implements ActionResult {
+export class ActionSource<Stats = unknown> implements ActionResult<Stats> {
   // optional feedback from front-end components to active action (e.g. to notify that the frontend animation has completed)
-  feedback$ = new Subject<any>();
+  readonly feedback$ = new Subject<unknown>();
   nextActionId?: number;
 
   constructor(
-    public story: StoryState,
+    public story: StoryState<Stats>,
     public global: GlobalState,
     private results$: Subject<ActionResult>,
     private interrupt$: Subject<boolean>
@@ -144,7 +138,6 @@ export class ActionStart implements ActionResult {
    * Publish the current update state as final result (end of action)
    */
   complete() {
-    this.results$.next(this);
     this.results$.complete();
     this.interrupt$.complete();
   }

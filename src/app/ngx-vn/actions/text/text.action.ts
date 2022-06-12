@@ -1,11 +1,11 @@
 import { from } from 'rxjs';
 import { delay } from 'rxjs/operators';
 
-import { story } from '../../story/story';
-import { ActionStart, ActionResult, StoryAction } from '../abstract-story-action/abstract-story-action';
+import { ActionSource, ActionResult, StoryAction } from '@ngx-vn/actions/abstract-story-action/abstract-story-action';
+import { story } from '@ngx-vn/story/story';
 
 // TODO: assign the correct Actor type to the actor (string for initial testing)
-export interface TextActionParameters {
+export interface TextActionParams {
   text: string;
   actor?: string;
 }
@@ -13,8 +13,8 @@ export interface TextActionParameters {
 /**
  * Only display the defined background
  */
-export function text(text: string, actor?: string): ActionStart | void {
-  story.appendAction(new TextAction({ text, actor }));
+export function text(text: string, actor?: string): number {
+  return story.appendAction(new TextAction({ text, actor }));
 }
 
 class TextAction extends StoryAction {
@@ -22,14 +22,15 @@ class TextAction extends StoryAction {
     return true;
   }
 
-  constructor(private params: TextActionParameters) {
+  constructor(private params: TextActionParams) {
     super();
   }
 
-  override updateState(update: ActionStart): ActionResult | void {
-    update.story.action.text = { ... this.params };
+  override updateState(update: ActionSource): ActionResult | void {
+    const textAction = { ... this.params };
+    update.story.action.text = textAction;
 
-    if (update.global.textSpeed <= 0) {
+    if (update.global.letterInterval <= 0) {
       // no animation, just return the result
       return update;
     }
@@ -37,7 +38,7 @@ class TextAction extends StoryAction {
     update.onSpeedup = () => {
       // stop sending updates and update to the full text
       subscription.unsubscribe();
-      update.story.action.text!.text = this.params.text;
+      textAction.text = this.params.text;
       update.publish();
       update.complete();
     };
@@ -47,16 +48,17 @@ class TextAction extends StoryAction {
       subscription.unsubscribe();
     };
 
-
     // display one letter at a time
-    const subscription = from(this.params.text).pipe(delay(update.global.textSpeed)).subscribe({
+    textAction.text = '';
+    update.publish();
+    const subscription = from(this.params.text).pipe(delay(update.global.letterInterval)).subscribe({
       next: nextLetter => {
-        update.story.action.text!.text += nextLetter;
+        textAction.text += nextLetter;
         update.publish();
       },
       complete: () => {
         update.complete();
       }
-    })
+    });
   }
 }

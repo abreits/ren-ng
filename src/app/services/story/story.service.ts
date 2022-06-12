@@ -81,7 +81,7 @@ export class StoryService implements OnDestroy {
   private performNextAction(): void {
     const nextState = this.futureStates.shift();
     this.setState(nextState);
-  };
+  }
 
   private setState(state: StoryState | undefined) {
     if (state) {
@@ -139,7 +139,7 @@ export function background(background: string, continueAfter$?: Observable<boole
     continue$ = continueAfter$;
   }
   StoryService.appendState({ speaker: '', text: '', background, continue$ });
-};
+}
 
 export const testStory = () => {
   background('black');
