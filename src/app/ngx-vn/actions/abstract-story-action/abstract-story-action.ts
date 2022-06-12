@@ -12,7 +12,7 @@ export interface ActionResult<Stats = unknown> {
  * The action base class, all other action classes are based on this class.
  * This is the minimal implementation for a base class
  */
-export abstract class StoryAction {
+export abstract class StoryAction<Stats = unknown> {
   /**
    * This method updates the story state as defined in the ActionSource.
    * 
@@ -20,7 +20,7 @@ export abstract class StoryAction {
    *   frontend components can receive these updates by subscribing to the actionCenterService.state$,
    * - End of publication is signalled by calling `update.complete()`
    */
-  protected abstract updateState(update: ActionSource): void;
+  protected abstract updateState(update: ActionSource<Stats>): void;
 
   id!: number; // will always have a value when added to the ActionCenter?
   private interrupt$?: Subject<boolean>;
@@ -49,11 +49,11 @@ export abstract class StoryAction {
   /** 
    * The execute observable can publish multiple resultupdates
    */
-  execute(storyState: StoryState, globalState: GlobalState): Observable<ActionResult> {
+  execute(storyState: StoryState<Stats>, globalState: GlobalState): Observable<ActionResult> {
     const results$ = new Subject<ActionResult>();
     this.interrupt$ = new Subject();
 
-    const actionStart = new ActionSource(storyState, globalState, results$, this.interrupt$);
+    const actionStart = new ActionSource<Stats>(storyState, globalState, results$, this.interrupt$);
 
     // setup handling of speedup and abort interrupts
     this.interrupt$.subscribe((abort: boolean) => {
