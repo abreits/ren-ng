@@ -2,19 +2,20 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { Section } from '@ngx-vn';
 
+// TODO: think of an easy text substitution system
 
-const start = new Section(vn => {
-  vn.background({ color: 'black' });
-  vn.text('Hallo, dit is een test', 'Tester');
-  vn.text('nog een tekst', 'Narrator');
-  vn.background({ color: 'yellow', animation: 'fadeIn', duration: 2000 });
-  vn.text('nu met een andere achtergrond', 'Verteller');
-  vn.select([
+const start = new Section(s => {
+  s.background({ color: 'black' });
+  s.text('Hallo, dit is een test', 'Tester');
+  s.text('nog een tekst', 'Narrator');
+  s.background({ color: 'yellow', animation: 'fadeIn', duration: 2000 });
+  s.text('nu met een andere achtergrond', 'Verteller');
+  s.select([
     ['option1', increaseStrength],
     ['option2', u => { u.stats.stamina += 1; u.goto(increaseStamina); }],
     ['option3', increaseIntelligence],
   ]);
-  vn.modify(u => {
+  s.modify(u => {
     if (u.stats.strength > 10) {
       u.goto(finish);
     }
@@ -32,20 +33,20 @@ const start = new Section(vn => {
 // goto action: 
 //   - goto call adress
 
-const increaseStrength = new Section(vn => {
-  vn.modify(u => {
+const increaseStrength = new Section(s => {
+  s.modify(u => {
     u.stats.strength += 1;
   });
 });
 
-const increaseStamina = new Section(vn => {
-  vn.modify(u => {
+const increaseStamina = new Section(s => {
+  s.modify(u => {
     u.stats.stamina += 1;
   });
 });
 
-const increaseIntelligence = new Section(vn => {
-  vn.modify(u => {
+const increaseIntelligence = new Section(s => {
+  s.modify(u => {
     u.stats.intelligence += 1;
   });
 });
