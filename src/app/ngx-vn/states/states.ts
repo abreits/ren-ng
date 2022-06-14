@@ -19,9 +19,9 @@ export interface ActionState {
 /**
  * current story state, observed in history
  */
-export interface StoryState<Stats = unknown> {
+export interface StoryState<Stats = unknown, ActionSettings = ActionState> {
   // story generic categories
-  action: Partial<ActionState>;
+  action: Partial<ActionSettings>;
   actors: unknown;
   locations: unknown;
   quests: unknown;

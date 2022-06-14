@@ -33,10 +33,11 @@ export class Section {
   readonly sectionEnd: number;
 
   constructor(
+    story: Story,
     createContent: (vn: any) => void
   ) {
     this.sectionStart = story.nextId;
-    createContent();
+    createContent(story);
     this.sectionEnd = story.nextId;
     // todo: create empty return/jump action, to be filled later
   }
