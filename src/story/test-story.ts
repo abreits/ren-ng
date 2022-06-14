@@ -24,11 +24,12 @@ const start = new Section(story, a => {
       s.goto(increaseStamina);
     }],
     ['option3', s => s.intelligence += 1],
-    ['option4', increaseIntelligence],
+    ['option4', () => skipint],
+    ['option5', s => s.goto(skipint)],
   ]);
   a.modify(s => {
     if (s.stats.strength > 10) {
-      s.goto(finish);
+      s.goto(skipint);
     }
   });
   a.goto([
@@ -37,7 +38,7 @@ const start = new Section(story, a => {
     [s => meetsRequirements(s), increaseStrength],
     [increaseIntelligence]
   ]);
-  a.call([
+  const skipint = a.call([
     [s => s.stats.intelligence > 10, finish],
     [s => s.stats.strength > 10, finish],
     [s => meetsRequirements(s), increaseStrength],
@@ -54,6 +55,10 @@ const start = new Section(story, a => {
   a.text(s => `Hello ${s.stats.name}`);
   a.text('Hello %mc%');
 });
+
+const meetsRequirements = (s: any): boolean => {
+  return true;
+}
 
 // extra Section actions:
 //  after:
